@@ -825,7 +825,7 @@ function App() {
               My Baby list
             </p>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Bébé Corroyez
+              Bébé CorroyezS
             </h1>
           </div>
 
