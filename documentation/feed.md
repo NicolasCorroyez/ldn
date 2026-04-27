@@ -392,6 +392,21 @@ A chaque demande, je :
   - reduction du padding du container principal (`p-4` en mobile, `sm:p-8`),
   - reduction des paddings des sections profil/produit et cartes categories en mobile (`p-3`), tout en conservant les valeurs desktop via `sm:*`.
 
+## 2026-04-27 - Desactivation zoom mobile
+
+- Demande utilisateur: empecher le zoom sur telephone.
+- Evolution appliquee dans `index.html`:
+  - mise a jour de la meta viewport avec `maximum-scale=1.0` et `user-scalable=no` pour bloquer le pinch-zoom.
+
+## 2026-04-27 - Image produit dans le detail
+
+- Demande utilisateur: ajouter la possibilite d'associer une image au produit et l'afficher dans les details.
+- Evolutions appliquees dans `src/App.jsx`:
+  - ajout du champ `imageUrl` dans le draft admin produit (`productDetails`) et dans la creation de produits custom,
+  - sauvegarde `imageUrl` dans Firestore (`productDetails` et `customProducts`),
+  - affichage de l'image sur la fiche produit quand une URL est renseignee,
+  - ajout des champs `URL image` dans le formulaire admin detail produit et dans le formulaire d'ajout produit par categorie.
+
 ## supabase
 
 Project ID : uhddwskandlnlojecumg

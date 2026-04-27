@@ -117,6 +117,7 @@ function getInitialProductDraft(item) {
   return {
     customName: item?.name ?? "",
     customLink: item?.extra?.startsWith("http") ? item.extra : "",
+    imageUrl: item?.imageUrl ?? "",
     description: "",
   };
 }
@@ -200,6 +201,7 @@ function App() {
   const [newProductDraft, setNewProductDraft] = useState({
     name: "",
     customLink: "",
+    imageUrl: "",
     description: "",
   });
   const [savingNewProductCategory, setSavingNewProductCategory] = useState("");
@@ -325,6 +327,7 @@ function App() {
           categoryTitle: category.title,
           name: override.customName?.trim() || item.name,
           extra: override.customLink?.trim() || item.extra,
+          imageUrl: override.imageUrl?.trim() || "",
           description: override.description ?? "",
           isCustom: false,
         });
@@ -349,6 +352,7 @@ function App() {
         categoryTitle,
         name: override.customName?.trim() || product.name || "Produit",
         extra: override.customLink?.trim() || product.customLink || "",
+        imageUrl: override.imageUrl?.trim() || product.imageUrl || "",
         description: override.description ?? product.description ?? "",
         isCustom: true,
         customDocId: docId,
@@ -453,6 +457,7 @@ function App() {
           customLink:
             override.customLink ??
             (item.extra?.startsWith("http") ? item.extra : ""),
+          imageUrl: override.imageUrl ?? item.imageUrl ?? "",
           description: override.description ?? "",
         },
       };
@@ -498,6 +503,7 @@ function App() {
         {
           customName: draft.customName.trim(),
           customLink: draft.customLink.trim(),
+          imageUrl: draft.imageUrl.trim(),
           description: draft.description.trim(),
           isHidden: false,
           updatedAt: serverTimestamp(),
@@ -516,6 +522,7 @@ function App() {
             ...previous,
             name: draft.customName.trim() || previous.name,
             extra: draft.customLink.trim() || previous.extra,
+            imageUrl: draft.imageUrl.trim(),
             description: draft.description.trim(),
           };
         });
@@ -539,6 +546,7 @@ function App() {
     setNewProductDraft({
       name: "",
       customLink: "",
+      imageUrl: "",
       description: "",
     });
   }
@@ -548,6 +556,7 @@ function App() {
     setNewProductDraft({
       name: "",
       customLink: "",
+      imageUrl: "",
       description: "",
     });
   }
@@ -573,6 +582,7 @@ function App() {
         categoryTitle: normalizedCategoryTitle,
         name,
         customLink: newProductDraft.customLink.trim(),
+        imageUrl: newProductDraft.imageUrl.trim(),
         description: newProductDraft.description.trim(),
         createdAt: serverTimestamp(),
         createdBy: getUsernameFromUser(user),
@@ -784,6 +794,8 @@ function App() {
   const selectedProductLink =
     selectedProductOverride.customLink ||
     (selectedProduct?.extra?.startsWith("http") ? selectedProduct.extra : "");
+  const selectedProductImage =
+    selectedProductOverride.imageUrl ?? selectedProduct?.imageUrl ?? "";
   const selectedProductDescription =
     selectedProductOverride.description ?? selectedProduct?.description ?? "";
   const selectedProductDraft = selectedProduct
@@ -809,11 +821,11 @@ function App() {
       <div className="mx-auto max-w-6xl rounded-3xl border-2 border-slate-900 bg-[#2C6AAD] p-4 shadow-[8px_8px_0_0_#111827] sm:p-8">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b-2 border-dashed border-slate-300 pb-5">
           <div>
-            <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-[#ff5d2e]">
-              Baby list
+            <p className="mb-1 text-sm font-black uppercase tracking-[0.2em] text-[#ff5d2e]">
+              My Baby list
             </p>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              de Romi Corroyez
+              Bébé Corroyez
             </h1>
           </div>
 
@@ -929,7 +941,7 @@ function App() {
                     onClick={handleSignOut}
                     className="rounded-full border-2 border-slate-900 bg-slate-900 px-4 py-2 text-sm font-black uppercase tracking-wide text-white hover:bg-slate-700"
                   >
-                    Se deconnecter
+                    Deconnexion
                   </button>
                 </div>
                 <p className="mt-2 text-sm text-slate-600">
@@ -1031,6 +1043,15 @@ function App() {
               </a>
             )}
 
+            {selectedProductImage && (
+              <img
+                src={selectedProductImage}
+                alt={selectedProduct.name}
+                className="mb-4 h-52 w-full rounded-xl border border-slate-200 bg-white object-cover"
+                loading="lazy"
+              />
+            )}
+
             {selectedProductDescription && (
               <p className="mb-4 rounded-xl bg-white p-3 text-sm text-slate-700 ring-1 ring-slate-200">
                 {selectedProductDescription}
@@ -1067,6 +1088,19 @@ function App() {
                       )
                     }
                     placeholder="Lien produit"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                  />
+                  <input
+                    type="text"
+                    value={selectedProductAdminDraft.imageUrl ?? ""}
+                    onChange={(event) =>
+                      updateProductDraft(
+                        selectedProduct.itemKey,
+                        "imageUrl",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="URL image produit"
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                   />
                   <textarea
@@ -1400,6 +1434,18 @@ function App() {
                               )
                             }
                             placeholder="Lien (optionnel)"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                          />
+                          <input
+                            type="text"
+                            value={newProductDraft.imageUrl}
+                            onChange={(event) =>
+                              updateNewProductDraft(
+                                "imageUrl",
+                                event.target.value,
+                              )
+                            }
+                            placeholder="URL image (optionnel)"
                             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                           />
                           <textarea
