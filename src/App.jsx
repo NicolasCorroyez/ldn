@@ -985,7 +985,7 @@ function App() {
             )}
           </section>
         ) : currentPage === "product" && selectedProduct ? (
-          <section className="rounded-2xl border-2 border-slate-900 bg-[#fff5ef] p-3 sm:p-5">
+          <section className="rounded-2xl border-2 border-slate-900 bg-[#fdfdfd] p-3 sm:p-5">
             <button
               type="button"
               onClick={() => setCurrentPage("list")}
@@ -1038,7 +1038,7 @@ function App() {
             )}
 
             {isAdmin && (
-              <section className="mb-4 rounded-xl border border-rose-200 bg-white p-3">
+              <section className="mb-4 rounded-xl border border-slate-200 bg-white p-3">
                 <h3 className="mb-2 text-sm font-semibold text-slate-900">
                   Edition admin produit
                 </h3>
@@ -1054,7 +1054,7 @@ function App() {
                       )
                     }
                     placeholder="Titre du produit"
-                    className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                   />
                   <input
                     type="text"
@@ -1067,7 +1067,7 @@ function App() {
                       )
                     }
                     placeholder="Lien produit"
-                    className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                   />
                   <textarea
                     value={selectedProductAdminDraft.description ?? ""}
@@ -1080,7 +1080,7 @@ function App() {
                     }
                     rows={3}
                     placeholder="Texte de detail produit"
-                    className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                   />
                   <button
                     type="button"
@@ -1139,7 +1139,7 @@ function App() {
                 onSubmit={(event) =>
                   submitParticipation(event, selectedProduct.itemKey)
                 }
-                className="mb-4 space-y-2 rounded-xl border border-rose-100 bg-white p-3"
+                className="mb-4 space-y-2 rounded-xl border border-slate-100 bg-white p-3"
               >
                 <div className="grid grid-cols-2 gap-2">
                   <select
@@ -1151,7 +1151,7 @@ function App() {
                         event.target.value,
                       )
                     }
-                    className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 focus:ring-2"
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 focus:ring-2"
                   >
                     {participationModes.map((mode) => (
                       <option key={mode.value} value={mode.value}>
@@ -1170,7 +1170,7 @@ function App() {
                       )
                     }
                     placeholder="Montant (optionnel)"
-                    className="rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                   />
                 </div>
 
@@ -1185,7 +1185,7 @@ function App() {
                   }
                   rows={2}
                   placeholder="Message (optionnel)"
-                  className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                 />
 
                 <button
@@ -1242,7 +1242,7 @@ function App() {
                                   event.target.value,
                                 )
                               }
-                              className="rounded-lg border border-rose-200 bg-white px-2 py-1 text-xs outline-none ring-rose-300 focus:ring-2"
+                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs outline-none ring-rose-300 focus:ring-2"
                             >
                               {participationModes.map((mode) => (
                                 <option key={mode.value} value={mode.value}>
@@ -1266,7 +1266,7 @@ function App() {
                                 )
                               }
                               placeholder="Montant"
-                              className="rounded-lg border border-rose-200 bg-white px-2 py-1 text-xs outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                             />
                             <button
                               type="button"
@@ -1298,7 +1298,7 @@ function App() {
                             }
                             rows={2}
                             placeholder="Note"
-                            className="w-full rounded-lg border border-rose-200 bg-white px-2 py-1 text-xs outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                           />
                           <button
                             type="button"
@@ -1378,7 +1378,7 @@ function App() {
                     })}
                   </ul>
                   {isAdmin && (
-                    <div className="mt-4 border-t-2 border-dashed border-rose-200 pt-3">
+                    <div className="mt-4 border-t-2 border-dashed border-slate-200 pt-3">
                       {categoryAddFormOpen === category.title ? (
                         <div className="space-y-2">
                           <input
@@ -1388,7 +1388,7 @@ function App() {
                               updateNewProductDraft("name", event.target.value)
                             }
                             placeholder="Nom du produit"
-                            className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                           />
                           <input
                             type="text"
@@ -1400,7 +1400,7 @@ function App() {
                               )
                             }
                             placeholder="Lien (optionnel)"
-                            className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                           />
                           <textarea
                             value={newProductDraft.description}
@@ -1412,7 +1412,7 @@ function App() {
                             }
                             rows={2}
                             placeholder="Texte detail (optionnel)"
-                            className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                           />
                           <div className="flex gap-2">
                             <button
