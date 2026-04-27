@@ -817,7 +817,7 @@ function App() {
     : null;
 
   return (
-    <main className="min-h-screen bg-[#fff8e8] px-3 py-12 text-slate-800 sm:px-6">
+    <main className="min-h-screen bg-[#fff8e8] px-3 py-5 text-slate-800 sm:px-6">
       <div className="mx-auto max-w-6xl rounded-3xl border-2 border-slate-900 bg-[#2C6AAD] p-4 shadow-[8px_8px_0_0_#111827] sm:p-8">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b-2 border-dashed border-slate-300 pb-5">
           <div>
@@ -825,7 +825,7 @@ function App() {
               My Baby list
             </p>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Bébé Corroyez
+              BEBE CORROYEZ
             </h1>
           </div>
 
