@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:auth": "node scripts/test-auth.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.104.1",
     "@tailwindcss/vite": "^4.2.4",
+    "firebase": "^12.12.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.4"
