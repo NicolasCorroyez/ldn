@@ -805,15 +805,15 @@ function App() {
     : null;
 
   return (
-    <main className="min-h-screen bg-[#fff8e8] px-6 py-12 text-slate-800">
-      <div className="mx-auto max-w-6xl rounded-3xl border-2 border-slate-900 bg-[#2C6AAD] p-8 shadow-[8px_8px_0_0_#111827]">
+    <main className="min-h-screen bg-[#fff8e8] px-3 py-12 text-slate-800 sm:px-6">
+      <div className="mx-auto max-w-6xl rounded-3xl border-2 border-slate-900 bg-[#2C6AAD] p-4 shadow-[8px_8px_0_0_#111827] sm:p-8">
         <header className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b-2 border-dashed border-slate-300 pb-5">
           <div>
             <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-[#ff5d2e]">
               Baby list
             </p>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Romi Corroyez
+              de Romi Corroyez
             </h1>
           </div>
 
@@ -846,7 +846,7 @@ function App() {
         </header>
 
         {currentPage === "profile" ? (
-          <section className="rounded-2xl border-2 border-slate-900 bg-[#f7f7fb] p-4">
+          <section className="rounded-2xl border-2 border-slate-900 bg-[#f7f7fb] p-3 sm:p-4">
             {!user ? (
               <>
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -887,7 +887,7 @@ function App() {
                       value={authUsername}
                       onChange={(event) => setAuthUsername(event.target.value)}
                       placeholder="Nom d utilisateur unique"
-                      className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                       required
                     />
                     <input
@@ -895,7 +895,7 @@ function App() {
                       value={authPassword}
                       onChange={(event) => setAuthPassword(event.target.value)}
                       placeholder="Mot de passe"
-                      className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                       required
                     />
                   </div>
@@ -985,7 +985,7 @@ function App() {
             )}
           </section>
         ) : currentPage === "product" && selectedProduct ? (
-          <section className="rounded-2xl border-2 border-slate-900 bg-[#fff5ef] p-5">
+          <section className="rounded-2xl border-2 border-slate-900 bg-[#fff5ef] p-3 sm:p-5">
             <button
               type="button"
               onClick={() => setCurrentPage("list")}
@@ -1328,7 +1328,7 @@ function App() {
               {displayCategories.map((category) => (
                 <article
                   key={category.title}
-                  className="rounded-2xl border-2 border-slate-900 bg-[#f4f4f4] p-5 shadow-[3px_3px_0_0_#111827]"
+                  className="rounded-2xl border-2 border-slate-900 bg-[#f4f4f4] p-3 shadow-[3px_3px_0_0_#111827] sm:p-5"
                 >
                   <h2 className="mb-4 text-xl font-black uppercase tracking-wide text-slate-900">
                     {getDisplayCategoryTitle(category.title)}

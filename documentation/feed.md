@@ -384,6 +384,14 @@ A chaque demande, je :
 - Correctif applique dans `src/App.jsx`:
   - remplacement du rendu restant `category.title` par `getDisplayCategoryTitle(category.title)` dans l'entete de chaque carte categorie.
 
+## 2026-04-27 - Optimisation padding mobile
+
+- Demande utilisateur: reduire le padding lateral des containers au format telephone.
+- Evolution appliquee dans `src/App.jsx`:
+  - reduction du padding horizontal global (`main`) en mobile (`px-3`),
+  - reduction du padding du container principal (`p-4` en mobile, `sm:p-8`),
+  - reduction des paddings des sections profil/produit et cartes categories en mobile (`p-3`), tout en conservant les valeurs desktop via `sm:*`.
+
 ## supabase
 
 Project ID : uhddwskandlnlojecumg
