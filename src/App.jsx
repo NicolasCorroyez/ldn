@@ -93,6 +93,11 @@ const participationModes = [
   { value: "virement", label: "Virement" },
   { value: "achat", label: "Achat direct" },
 ];
+const postalAddressLines = [
+  "Nicolas et Marion Corroyez",
+  "13 rue de Strasbourg",
+  "33000 - Bordeaux",
+];
 
 function getItemKey(categoryTitle, itemName) {
   return `${categoryTitle}::${itemName}`;
@@ -184,6 +189,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState("list");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isPostalModalOpen, setIsPostalModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [authUsername, setAuthUsername] = useState("");
   const [authPassword, setAuthPassword] = useState("");
@@ -824,6 +830,7 @@ function App() {
             <p className="mb-1 text-sm font-black uppercase tracking-[0.2em] text-[#ff5d2e]">
               My Baby list
             </p>
+
             <h1 className="text-4xl font-black tracking-tight text-white">
               BEBE CORROYEZ
             </h1>
@@ -854,8 +861,45 @@ function App() {
             >
               Mon espace
             </button>
+            <button
+              type="button"
+              onClick={() => setIsPostalModalOpen(true)}
+              className="rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-sm font-black uppercase tracking-wide text-slate-700 transition hover:border-slate-900"
+            >
+              Contact
+            </button>
           </div>
         </header>
+
+        {isPostalModalOpen && (
+          <div
+            className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/55 p-4"
+            onClick={() => setIsPostalModalOpen(false)}
+          >
+            <div
+              className="w-full max-w-sm rounded-2xl border-2 border-slate-900 bg-white p-4 shadow-[6px_6px_0_0_#111827]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <h2 className="text-base font-black uppercase tracking-wide text-slate-900">
+                  Adresse postale
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsPostalModalOpen(false)}
+                  className="rounded-full border-2 border-slate-300 bg-white px-2 py-1 text-xs font-bold text-slate-700 hover:border-slate-900"
+                >
+                  Fermer
+                </button>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-800 ring-1 ring-slate-200">
+                {postalAddressLines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {currentPage === "profile" ? (
           <section className="rounded-2xl border-2 border-slate-900 bg-[#f7f7fb] p-3 sm:p-4">

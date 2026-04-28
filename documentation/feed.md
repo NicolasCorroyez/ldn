@@ -407,6 +407,21 @@ A chaque demande, je :
   - affichage de l'image sur la fiche produit quand une URL est renseignee,
   - ajout des champs `URL image` dans le formulaire admin detail produit et dans le formulaire d'ajout produit par categorie.
 
+## 2026-04-27 - Bouton adresse postale + modale
+
+- Demande utilisateur: ajouter un bouton dans le header, a cote de `BEBE CORROYEZ`, pour afficher l'adresse postale dans une petite modale centrale.
+- Evolutions appliquees dans `src/App.jsx`:
+  - ajout d'un bouton `Adresse postale` dans le bloc titre du header,
+  - ajout d'une modale centree (overlay) avec bouton fermer,
+  - ajout d'un tableau de lignes `postalAddressLines` pour afficher l'adresse.
+
+## 2026-04-27 - Deplacement bouton adresse
+
+- Demande utilisateur: placer le bouton adresse a cote de `Mon espace`.
+- Evolution appliquee dans `src/App.jsx`:
+  - bouton `Adresse postale` retire du bloc titre,
+  - bouton ajoute dans le groupe d'actions de navigation a cote de `Mon espace`.
+
 ## supabase
 
 Project ID : uhddwskandlnlojecumg
