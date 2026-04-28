@@ -103,6 +103,29 @@ function getItemKey(categoryTitle, itemName) {
   return `${categoryTitle}::${itemName}`;
 }
 
+function getCategoryKey(categoryTitle) {
+  return `category::${categoryTitle}`;
+}
+
+function getProductDetailsDocId(itemKey) {
+  return encodeURIComponent(itemKey);
+}
+
+function getItemKeyFromProductDetailsDocId(docId) {
+  try {
+    return decodeURIComponent(docId);
+  } catch {
+    return docId;
+  }
+}
+
+function getTimestampMs(value) {
+  if (value && typeof value.toMillis === "function") {
+    return value.toMillis();
+  }
+  return 0;
+}
+
 function getInitialParticipationDraft() {
   return { mode: "virement", amount: "", note: "" };
 }
@@ -214,6 +237,9 @@ function App() {
   const [participationEditsById, setParticipationEditsById] = useState({});
   const [savingParticipationId, setSavingParticipationId] = useState("");
   const [, setParticipationError] = useState("");
+  const [adminProductFeedback, setAdminProductFeedback] = useState("");
+  const [adminCategoryFeedback, setAdminCategoryFeedback] = useState("");
+  const [savingCategoryTitle, setSavingCategoryTitle] = useState("");
   const [savingItemKey, setSavingItemKey] = useState("");
   const [deletingParticipationId, setDeletingParticipationId] = useState("");
 
@@ -259,8 +285,20 @@ function App() {
       overridesQuery,
       (snapshot) => {
         const nextOverrides = {};
+        const latestOverrideTimestampByKey = {};
         snapshot.docs.forEach((documentSnapshot) => {
-          nextOverrides[documentSnapshot.id] = documentSnapshot.data();
+          const itemKey = getItemKeyFromProductDetailsDocId(
+            documentSnapshot.id,
+          );
+          const data = documentSnapshot.data();
+          const dataTimestamp = getTimestampMs(data.updatedAt);
+          const previousTimestamp = latestOverrideTimestampByKey[itemKey] ?? -1;
+
+          // Si un ancien doc "legacy" et un doc encode existent, garder la version la plus recente.
+          if (dataTimestamp >= previousTimestamp) {
+            nextOverrides[itemKey] = data;
+            latestOverrideTimestampByKey[itemKey] = dataTimestamp;
+          }
         });
         setProductOverridesByKey(nextOverrides);
       },
@@ -313,7 +351,7 @@ function App() {
     );
   }, [currentUserParticipations]);
 
-  const displayCategories = useMemo(() => {
+  const allCategories = useMemo(() => {
     const categoriesMap = new Map();
 
     giftCategories.forEach((category) => {
@@ -370,6 +408,25 @@ function App() {
       items,
     }));
   }, [customProductsById, productOverridesByKey]);
+
+  const categoryVisibility = useMemo(() => {
+    return allCategories.map((category) => {
+      const categoryKey = getCategoryKey(category.title);
+      const override = productOverridesByKey[categoryKey] ?? {};
+      return {
+        title: category.title,
+        isHidden: Boolean(override.isHiddenCategory),
+      };
+    });
+  }, [allCategories, productOverridesByKey]);
+
+  const displayCategories = useMemo(() => {
+    return allCategories.filter((category) => {
+      const categoryKey = getCategoryKey(category.title);
+      const override = productOverridesByKey[categoryKey] ?? {};
+      return !override.isHiddenCategory;
+    });
+  }, [allCategories, productOverridesByKey]);
 
   const isAdmin = useMemo(() => {
     if (!user) {
@@ -502,10 +559,12 @@ function App() {
 
     setSavingProductKey(itemKey);
     setParticipationError("");
+    setAdminProductFeedback("");
+    const encodedDocId = getProductDetailsDocId(itemKey);
 
     try {
       await setDoc(
-        firestoreDoc(db, "productDetails", itemKey),
+        firestoreDoc(db, "productDetails", encodedDocId),
         {
           customName: draft.customName.trim(),
           customLink: draft.customLink.trim(),
@@ -517,6 +576,15 @@ function App() {
         },
         { merge: true },
       );
+
+      // Nettoyage legacy: avant encodage on utilisait itemKey brut comme docId.
+      if (encodedDocId !== itemKey) {
+        try {
+          await deleteDoc(firestoreDoc(db, "productDetails", itemKey));
+        } catch {
+          // Non bloquant: la sauvegarde principale est deja faite.
+        }
+      }
 
       if (selectedProduct?.itemKey === itemKey) {
         setSelectedProduct((previous) => {
@@ -533,8 +601,11 @@ function App() {
           };
         });
       }
+      setAdminProductFeedback("Produit sauvegarde.");
     } catch (error) {
-      setParticipationError(mapFirebaseError(error));
+      const errorMessage = mapFirebaseError(error);
+      setParticipationError(errorMessage);
+      setAdminProductFeedback(`Erreur: ${errorMessage}`);
     } finally {
       setSavingProductKey("");
     }
@@ -580,6 +651,7 @@ function App() {
 
     setSavingNewProductCategory(normalizedCategoryTitle);
     setParticipationError("");
+    setAdminProductFeedback("");
 
     try {
       const newDocRef = firestoreDoc(collection(db, "customProducts"));
@@ -595,8 +667,11 @@ function App() {
       });
 
       cancelAddProductInCategory();
+      setAdminProductFeedback("Produit ajoute.");
     } catch (error) {
-      setParticipationError(mapFirebaseError(error));
+      const errorMessage = mapFirebaseError(error);
+      setParticipationError(errorMessage);
+      setAdminProductFeedback(`Erreur: ${errorMessage}`);
     } finally {
       setSavingNewProductCategory("");
     }
@@ -609,6 +684,8 @@ function App() {
 
     setSavingProductKey(item.itemKey);
     setParticipationError("");
+    setAdminProductFeedback("");
+    const encodedDocId = getProductDetailsDocId(item.itemKey);
 
     try {
       if (item.isCustom && item.customDocId) {
@@ -616,7 +693,7 @@ function App() {
       }
 
       await setDoc(
-        firestoreDoc(db, "productDetails", item.itemKey),
+        firestoreDoc(db, "productDetails", encodedDocId),
         {
           isHidden: true,
           updatedAt: serverTimestamp(),
@@ -625,14 +702,60 @@ function App() {
         { merge: true },
       );
 
+      if (encodedDocId !== item.itemKey) {
+        try {
+          await deleteDoc(firestoreDoc(db, "productDetails", item.itemKey));
+        } catch {
+          // Non bloquant.
+        }
+      }
+
       if (selectedProduct?.itemKey === item.itemKey) {
         setCurrentPage("list");
         setSelectedProduct(null);
       }
+      setAdminProductFeedback("Produit supprime.");
     } catch (error) {
-      setParticipationError(mapFirebaseError(error));
+      const errorMessage = mapFirebaseError(error);
+      setParticipationError(errorMessage);
+      setAdminProductFeedback(`Erreur suppression: ${errorMessage}`);
     } finally {
       setSavingProductKey("");
+    }
+  }
+
+  async function setCategoryVisibility(categoryTitle, shouldHide) {
+    if (!isAdmin || !categoryTitle) {
+      return;
+    }
+
+    setSavingCategoryTitle(categoryTitle);
+    setAdminCategoryFeedback("");
+    setParticipationError("");
+
+    const categoryKey = getCategoryKey(categoryTitle);
+
+    try {
+      await setDoc(
+        firestoreDoc(db, "productDetails", getProductDetailsDocId(categoryKey)),
+        {
+          isHiddenCategory: shouldHide,
+          updatedAt: serverTimestamp(),
+          updatedBy: getUsernameFromUser(user),
+        },
+        { merge: true },
+      );
+      setAdminCategoryFeedback(
+        shouldHide
+          ? `Categorie masquee: ${getDisplayCategoryTitle(categoryTitle)}`
+          : `Categorie affichee: ${getDisplayCategoryTitle(categoryTitle)}`,
+      );
+    } catch (error) {
+      const errorMessage = mapFirebaseError(error);
+      setParticipationError(errorMessage);
+      setAdminCategoryFeedback(`Erreur categorie: ${errorMessage}`);
+    } finally {
+      setSavingCategoryTitle("");
     }
   }
 
@@ -1091,7 +1214,7 @@ function App() {
               <img
                 src={selectedProductImage}
                 alt={selectedProduct.name}
-                className="mb-4 h-52 w-full rounded-xl border border-slate-200 bg-white object-cover"
+                className="mb-4 h-56 w-full rounded-xl border border-slate-200 bg-white p-2 object-contain"
                 loading="lazy"
               />
             )}
@@ -1107,6 +1230,11 @@ function App() {
                 <h3 className="mb-2 text-sm font-semibold text-slate-900">
                   Edition admin produit
                 </h3>
+                {adminProductFeedback && (
+                  <p className="mb-2 text-xs font-medium text-slate-700">
+                    {adminProductFeedback}
+                  </p>
+                )}
                 <div className="space-y-2">
                   <input
                     type="text"
@@ -1402,6 +1530,50 @@ function App() {
           </section>
         ) : (
           <>
+            {isAdmin && (
+              <section className="mb-4 rounded-2xl border border-dashed border-slate-900 bg-white p-3">
+                <h2 className="text-xs uppercase tracking-wide text-slate-900">
+                  Visibilite des categories
+                </h2>
+                {adminCategoryFeedback && (
+                  <p className="mt-2 text-xs font-medium text-slate-700">
+                    {adminCategoryFeedback}
+                  </p>
+                )}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {categoryVisibility.map((category) => (
+                    <button
+                      key={category.title}
+                      type="button"
+                      onClick={() =>
+                        setCategoryVisibility(
+                          category.title,
+                          !category.isHidden,
+                        )
+                      }
+                      disabled={savingCategoryTitle === category.title}
+                      className="rounded-full border-2 border-slate-300 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-800 hover:border-slate-900 disabled:opacity-60"
+                    >
+                      <span
+                        className={`mr-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                          category.isHidden
+                            ? "bg-rose-100 text-rose-700"
+                            : "bg-emerald-100 text-emerald-700"
+                        }`}
+                      >
+                        {category.isHidden ? "Masquee" : "Visible"}
+                      </span>
+                      {savingCategoryTitle === category.title
+                        ? "..."
+                        : category.isHidden
+                          ? `Afficher ${getDisplayCategoryTitle(category.title)}`
+                          : `Masquer ${getDisplayCategoryTitle(category.title)}`}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {displayCategories.map((category) => (
                 <article

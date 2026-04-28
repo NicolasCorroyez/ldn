@@ -422,6 +422,53 @@ A chaque demande, je :
   - bouton `Adresse postale` retire du bloc titre,
   - bouton ajoute dans le groupe d'actions de navigation a cote de `Mon espace`.
 
+## 2026-04-28 - Feedback visible actions admin produits
+
+- Demande utilisateur: comprendre pourquoi certains produits ne se suppriment pas.
+- Evolutions appliquees dans `src/App.jsx`:
+  - ajout d'un feedback UI visible `adminProductFeedback` dans la section `Edition admin produit`,
+  - affichage des succes (`Produit sauvegarde.`, `Produit ajoute.`, `Produit supprime.`),
+  - affichage des erreurs detaillees en cas d'echec de suppression/sauvegarde/ajout (ex: permissions Firestore).
+
+## 2026-04-28 - Correctif suppression produits avec "/" dans le nom
+
+- Retour utilisateur: erreur Firestore `Invalid document reference ... productDetails/...` sur certains produits.
+- Cause: l'ID de document `productDetails` utilisait `itemKey` brut, qui peut contenir `/` (segment de chemin invalide).
+- Correctif applique dans `src/App.jsx`:
+  - ajout des helpers d'encodage/decodage des IDs `productDetails`,
+  - ecritures `setDoc` sur `productDetails` faites avec un ID encode (`encodeURIComponent(itemKey)`),
+  - lecture snapshot `productDetails` decodee pour retrouver les `itemKey` originaux en memoire.
+
+## 2026-04-28 - Correctif edition nom produit (docs legacy/productDetails)
+
+- Retour utilisateur: la modification de nom produit ne persistait pas correctement.
+- Cause probable: coexistence de docs `productDetails` legacy (ID brut) et nouveaux docs encodes, avec ecrasement a la lecture.
+- Correctifs appliques dans `src/App.jsx`:
+  - reconciliation des doublons a la lecture `productDetails` en gardant la version la plus recente (`updatedAt`),
+  - nettoyage legacy a l'ecriture/suppression (tentative de suppression de l'ancien doc ID brut quand ID encode differente).
+
+## 2026-04-28 - Masquage / affichage categories (admin)
+
+- Demande utilisateur: permettre a l'admin de masquer/afficher des categories.
+- Evolutions appliquees dans `src/App.jsx`:
+  - ajout d'un controle de visibilite des categories dans la vue liste (admin),
+  - persistance de l'etat via `productDetails` avec des cles de categorie (`category::<titre>`),
+  - filtrage des categories masquees dans l'affichage public,
+  - feedback de succes/erreur pour les actions `Masquer` / `Afficher`.
+
+## 2026-04-28 - Indicateur categorie masquee
+
+- Demande utilisateur: ajouter un indicateur quand une categorie est masquee.
+- Evolutions appliquees dans `src/App.jsx`:
+  - ajout d'un badge d'etat par categorie dans le panneau admin (`Visible` / `Masquee`),
+  - ajout d'un compteur global `Categories masquees: X`.
+
+## 2026-04-28 - Ajustement affichage image produit
+
+- Demande utilisateur: afficher l'image en entier sans qu'elle prenne un format trop grand.
+- Evolution appliquee dans `src/App.jsx`:
+  - passage de l'image detail en `object-contain` avec hauteur bornee et padding interne pour conserver l'image complete dans un cadre compact.
+
 ## supabase
 
 Project ID : uhddwskandlnlojecumg
