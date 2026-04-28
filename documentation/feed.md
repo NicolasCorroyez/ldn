@@ -469,6 +469,30 @@ A chaque demande, je :
 - Evolution appliquee dans `src/App.jsx`:
   - passage de l'image detail en `object-contain` avec hauteur bornee et padding interne pour conserver l'image complete dans un cadre compact.
 
+## 2026-04-28 - Apercu sommaire du lien produit
+
+- Demande utilisateur: mettre en place un apercu sommaire du lien.
+- Evolutions appliquees dans `src/App.jsx`:
+  - ajout d'un helper `getSimpleLinkPreview` (domaine, chemin, favicon),
+  - affichage d'une carte compacte `Apercu sommaire` dans la fiche produit,
+  - conservation du lien principal externe.
+
+## 2026-04-28 - Navigation depuis "Mes participations" vers fiche produit
+
+- Demande utilisateur: pouvoir cliquer sur les objets de `Mes participations` pour revenir vers la fiche produit.
+- Evolutions appliquees dans `src/App.jsx`:
+  - ajout d'un index `productsByItemKey` pour retrouver rapidement un produit depuis `giftKey`,
+  - ajout de la fonction `openParticipationProduct`,
+  - rendu des lignes `Mes participations` avec nom produit cliquable (quand resolvable) ouvrant directement la fiche.
+
+## 2026-04-28 - Masquage preview si lien vide/invalide
+
+- Demande utilisateur: ne pas afficher l'apercu quand aucun lien n'est renseigne.
+- Evolutions appliquees dans `src/App.jsx`:
+  - validation stricte URL (`http/https`) dans `getSimpleLinkPreview`,
+  - suppression de l'apercu pour les liens invalides,
+  - gestion explicite du cas `customLink` vide pour ne pas retomber sur un fallback non souhaite.
+
 ## supabase
 
 Project ID : uhddwskandlnlojecumg

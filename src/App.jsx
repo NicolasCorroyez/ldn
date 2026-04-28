@@ -208,6 +208,35 @@ function mapFirebaseError(error) {
   return error?.message ?? "Une erreur inconnue est survenue.";
 }
 
+function getSimpleLinkPreview(link) {
+  if (!link) {
+    return null;
+  }
+
+  try {
+    const parsedUrl = new URL(link);
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      return null;
+    }
+    return {
+      hostname: parsedUrl.hostname.replace(/^www\./, ""),
+      path: parsedUrl.pathname === "/" ? "" : parsedUrl.pathname,
+      href: parsedUrl.toString(),
+      favicon: `https://www.google.com/s2/favicons?domain=${parsedUrl.hostname}&sz=64`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function getResolvedOverrideLink(override, fallbackLink = "") {
+  const normalizedFallback = (fallbackLink ?? "").trim();
+  if (Object.prototype.hasOwnProperty.call(override, "customLink")) {
+    return (override.customLink ?? "").trim();
+  }
+  return normalizedFallback;
+}
+
 function App() {
   const [user, setUser] = useState(null);
   const [currentPage, setCurrentPage] = useState("list");
@@ -370,7 +399,10 @@ function App() {
           itemKey,
           categoryTitle: category.title,
           name: override.customName?.trim() || item.name,
-          extra: override.customLink?.trim() || item.extra,
+          extra: getResolvedOverrideLink(
+            override,
+            item.extra?.startsWith("http") ? item.extra : "",
+          ),
           imageUrl: override.imageUrl?.trim() || "",
           description: override.description ?? "",
           isCustom: false,
@@ -395,7 +427,7 @@ function App() {
         itemKey,
         categoryTitle,
         name: override.customName?.trim() || product.name || "Produit",
-        extra: override.customLink?.trim() || product.customLink || "",
+        extra: getResolvedOverrideLink(override, product.customLink || ""),
         imageUrl: override.imageUrl?.trim() || product.imageUrl || "",
         description: override.description ?? product.description ?? "",
         isCustom: true,
@@ -428,12 +460,27 @@ function App() {
     });
   }, [allCategories, productOverridesByKey]);
 
+  const productsByItemKey = useMemo(() => {
+    const entries = allCategories.flatMap((category) =>
+      category.items.map((item) => [item.itemKey, item]),
+    );
+    return Object.fromEntries(entries);
+  }, [allCategories]);
+
   const isAdmin = useMemo(() => {
     if (!user) {
       return false;
     }
     return normalizeUsername(getUsernameFromUser(user)) === "bagnorrez";
   }, [user]);
+
+  function openParticipationProduct(giftKey) {
+    const product = productsByItemKey[giftKey];
+    if (!product) {
+      return;
+    }
+    openProductDetail(product);
+  }
 
   async function handleAuthSubmit(event) {
     event.preventDefault();
@@ -920,9 +967,13 @@ function App() {
   const selectedProductOverride = selectedProduct
     ? (productOverridesByKey[selectedProduct.itemKey] ?? {})
     : {};
-  const selectedProductLink =
-    selectedProductOverride.customLink ||
-    (selectedProduct?.extra?.startsWith("http") ? selectedProduct.extra : "");
+  const selectedProductLink = selectedProduct
+    ? getResolvedOverrideLink(
+        selectedProductOverride,
+        selectedProduct.extra?.startsWith("http") ? selectedProduct.extra : "",
+      )
+    : "";
+  const selectedProductLinkPreview = getSimpleLinkPreview(selectedProductLink);
   const selectedProductImage =
     selectedProductOverride.imageUrl ?? selectedProduct?.imageUrl ?? "";
   const selectedProductDescription =
@@ -955,7 +1006,7 @@ function App() {
             </p>
 
             <h1 className="text-4xl font-black tracking-tight text-white">
-              BEBE CORROYEZ
+              🐥 BEBE CORROYEZ
             </h1>
           </div>
 
@@ -1130,35 +1181,57 @@ function App() {
                   </button>
                 </div>
                 <ul className="mt-3 space-y-2 text-sm text-slate-700">
-                  {currentUserParticipations.map((participation) => (
-                    <li
-                      key={participation.id}
-                      className="rounded-lg bg-white px-3 py-2"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <p>
-                          <span className="font-medium">
-                            {participation.giftKey}
-                          </span>{" "}
-                          - {getModeLabel(participation.mode)}
-                          {participation.amount && ` - ${participation.amount}`}
-                          {participation.note && ` - ${participation.note}`}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => deleteParticipation(participation.id)}
-                          className="shrink-0 rounded-lg bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-60"
-                          disabled={
-                            deletingParticipationId === participation.id
-                          }
-                        >
-                          {deletingParticipationId === participation.id
-                            ? "Suppression..."
-                            : "Supprimer"}
-                        </button>
-                      </div>
-                    </li>
-                  ))}
+                  {currentUserParticipations.map((participation) => {
+                    const linkedProduct =
+                      productsByItemKey[participation.giftKey] ?? null;
+
+                    return (
+                      <li
+                        key={participation.id}
+                        className="rounded-lg bg-white px-3 py-2"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <p>
+                            {linkedProduct ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openParticipationProduct(
+                                    participation.giftKey,
+                                  )
+                                }
+                                className="font-medium text-sky-700 underline decoration-sky-300 underline-offset-2 hover:text-sky-900"
+                              >
+                                {linkedProduct.name}
+                              </button>
+                            ) : (
+                              <span className="font-medium">
+                                {participation.giftKey}
+                              </span>
+                            )}{" "}
+                            - {getModeLabel(participation.mode)}
+                            {participation.amount &&
+                              ` - ${participation.amount}`}
+                            {participation.note && ` - ${participation.note}`}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              deleteParticipation(participation.id)
+                            }
+                            className="shrink-0 rounded-lg bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-60"
+                            disabled={
+                              deletingParticipationId === participation.id
+                            }
+                          >
+                            {deletingParticipationId === participation.id
+                              ? "Suppression..."
+                              : "Supprimer"}
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </>
             )}
@@ -1200,14 +1273,40 @@ function App() {
             </div>
 
             {selectedProductLink && (
-              <a
-                className="mb-4 inline-block text-sm font-medium text-sky-700 underline decoration-sky-300 underline-offset-2"
-                href={selectedProductLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Voir le lien produit
-              </a>
+              <div className="mb-4">
+                {selectedProductLinkPreview && (
+                  <a
+                    href={selectedProductLinkPreview.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 block rounded-xl border border-slate-200 bg-white p-3 hover:bg-slate-50"
+                  >
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      Lien produit
+                    </p>
+                    <div className="flex items-start gap-3">
+                      {selectedProductLinkPreview.favicon && (
+                        <img
+                          src={selectedProductLinkPreview.favicon}
+                          alt=""
+                          className="h-5 w-5 shrink-0 rounded"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                          {selectedProductLinkPreview.hostname}
+                        </p>
+                        {selectedProductLinkPreview.path && (
+                          <p className="truncate text-xs text-slate-500">
+                            {selectedProductLinkPreview.path}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </a>
+                )}
+              </div>
             )}
 
             {selectedProductImage && (
