@@ -493,6 +493,14 @@ A chaque demande, je :
   - suppression de l'apercu pour les liens invalides,
   - gestion explicite du cas `customLink` vide pour ne pas retomber sur un fallback non souhaite.
 
+## 2026-04-28 - Auth sans case sensitivity (minuscule forcee)
+
+- Demande utilisateur: envoyer/conserver en minuscule tout ce qui est saisi dans `nom d'utilisateur` et `mot de passe`.
+- Evolutions appliquees dans `src/App.jsx`:
+  - saisie forcee en minuscule sur les champs username/password (`onChange`),
+  - normalisation en minuscule egalement juste avant soumission (`handleAuthSubmit`),
+  - utilisation du mot de passe normalise pour signup/login Firebase.
+
 ## supabase
 
 Project ID : uhddwskandlnlojecumg

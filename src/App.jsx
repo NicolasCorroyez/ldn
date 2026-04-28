@@ -488,13 +488,14 @@ function App() {
     setAuthInfo("");
 
     const normalizedUsername = normalizeUsername(authUsername);
+    const normalizedPassword = authPassword.toLowerCase();
     if (!isValidUsername(normalizedUsername)) {
       setAuthError(
         "Nom d utilisateur invalide (3-30 caracteres: lettres minuscules, chiffres, point, tiret ou underscore).",
       );
       return;
     }
-    if (authPassword.length < 6) {
+    if (normalizedPassword.length < 6) {
       setAuthError("Mot de passe trop court (minimum 6 caracteres).");
       return;
     }
@@ -507,7 +508,7 @@ function App() {
         const credentials = await createUserWithEmailAndPassword(
           auth,
           email,
-          authPassword,
+          normalizedPassword,
         );
         await updateProfile(credentials.user, {
           displayName: normalizedUsername,
@@ -518,7 +519,7 @@ function App() {
         });
         setAuthInfo("Compte cree. Tu peux maintenant participer a la liste.");
       } else {
-        await signInWithEmailAndPassword(auth, email, authPassword);
+        await signInWithEmailAndPassword(auth, email, normalizedPassword);
         setAuthInfo("Connexion reussie.");
       }
 
@@ -1115,7 +1116,9 @@ function App() {
                     <input
                       type="text"
                       value={authUsername}
-                      onChange={(event) => setAuthUsername(event.target.value)}
+                      onChange={(event) =>
+                        setAuthUsername(event.target.value.toLowerCase())
+                      }
                       placeholder="Nom d utilisateur unique"
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                       required
@@ -1123,7 +1126,9 @@ function App() {
                     <input
                       type="password"
                       value={authPassword}
-                      onChange={(event) => setAuthPassword(event.target.value)}
+                      onChange={(event) =>
+                        setAuthPassword(event.target.value.toLowerCase())
+                      }
                       placeholder="Mot de passe"
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-rose-300 placeholder:text-slate-400 focus:ring-2"
                       required
